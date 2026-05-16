@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Uncompressed database — commit the .db.gz, not the raw .db
+src/azrael/_data/*.db
+
+# Firebase credentials — NEVER commit these
+*firebase-adminsdk*.json
+*service-account*.json
+*serviceAccount*.json
+serviceAccountKey.json
+credentials*.json
+*-credentials.json
