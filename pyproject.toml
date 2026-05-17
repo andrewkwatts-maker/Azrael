@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
 
 [project]
 name = "azrael"
@@ -45,9 +45,10 @@ Homepage = "https://github.com/EyesOfAzrael/azrael"
 Repository = "https://github.com/EyesOfAzrael/azrael"
 Issues = "https://github.com/EyesOfAzrael/azrael/issues"
 
+[tool.maturin]
+python-source = "src"
+module-name = "azrael._core"
+features = ["pyo3/extension-module"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/azrael"]
-artifacts = ["src/azrael/_data/*.db.gz"]
