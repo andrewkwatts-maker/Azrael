@@ -10,8 +10,8 @@ _BASE_PATH = Path(__file__).parent / "_data" / "azrael.db.gz"
 
 class _AzraelDB(EntityDB):
     def __init__(self) -> None:
-        from ._corpus_registry import AZRAEL_DEFAULT_CORPUSES
-        super().__init__("azrael", _BASE_PATH, AZRAEL_DEFAULT_CORPUSES)
+        from ._corpus_registry import MYTHOLOGY_CORPUSES
+        super().__init__("azrael", _BASE_PATH, MYTHOLOGY_CORPUSES)
 
 
 _db = _AzraelDB()
