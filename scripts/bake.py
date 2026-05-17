@@ -25,11 +25,11 @@ from eyecore import compress_db, GRAPH_SCHEMA
 ROOT = Path(__file__).parent.parent
 DATA_OUT = ROOT / "src" / "azrael" / "_data" / "azrael.db"
 
-PROJECT_ID = "eyesofazrael"
-# Public client API key — safe to embed, identical to what ships in the website JS
-DEFAULT_API_KEY = "AIzaSyB7bFdte6f81-bNMsdITgnnnWq7aBNMXRw"
+PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "eyesofazrael")
+DEFAULT_API_KEY = os.getenv("FIREBASE_API_KEY", "")
 _BASE = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents"
 
+# Mythology-only collections — magic/herbs/rituals belong in esoterica
 COLLECTIONS: dict[str, str] = {
     "deities": "deity",
     "creatures": "creature",
@@ -40,9 +40,6 @@ COLLECTIONS: dict[str, str] = {
     "symbols": "symbol",
     "archetypes": "archetype",
     "cosmology": "cosmology",
-    "magic": "magic",
-    "herbs": "herb",
-    "rituals": "ritual",
     "texts": "text",
     "mythologies": "mythology",
     "beings": "being",
