@@ -7,14 +7,51 @@ from eyecore import EntityDB
 
 _BASE_PATH = Path(__file__).parent / "_data" / "azrael.db.gz"
 
+# Baked snapshot hosted as a GitHub Release asset — downloaded lazily on
+# first query so the wheel stays small. Firestore serves only the diff layer
+# on top of this snapshot (see Refresh()).
+_DATA_URL = (
+    "https://github.com/andrewkwatts-maker/Azrael/releases/download/"
+    "data-v1.1.0/azrael.db.gz"
+)
+
+# Firestore collections this package mirrors (must match scripts/bake.py).
+MYTHOLOGY_COLLECTIONS = [
+    "deities", "creatures", "heroes", "places", "items", "concepts",
+    "symbols", "archetypes", "cosmology", "texts", "mythologies", "beings",
+    "figures", "teachings", "events", "path",
+]
+
+_COLLECTION_TYPES = {
+    "deities": "deity", "creatures": "creature", "heroes": "hero",
+    "places": "place", "items": "item", "concepts": "concept",
+    "symbols": "symbol", "archetypes": "archetype", "cosmology": "cosmology",
+    "texts": "text", "mythologies": "mythology", "beings": "being",
+    "figures": "figure", "teachings": "teaching", "events": "event",
+    "path": "path",
+}
+
 
 class _AzraelDB(EntityDB):
     def __init__(self) -> None:
         from ._corpus_registry import MYTHOLOGY_CORPUSES
-        super().__init__("azrael", _BASE_PATH, MYTHOLOGY_CORPUSES)
+        super().__init__(
+            "azrael",
+            _BASE_PATH,
+            MYTHOLOGY_CORPUSES,
+            remote_url=_DATA_URL,
+        )
 
 
 _db = _AzraelDB()
+
+
+def Refresh(api_key: str = "") -> int:
+    """Pull entities changed in Firestore since the bake (or last Refresh)
+    and merge them into the local database. Returns entities applied."""
+    return _db.sync_deltas(
+        "eyesofazrael", MYTHOLOGY_COLLECTIONS, _COLLECTION_TYPES, api_key
+    )
 
 
 # ── Public thin wrappers ──────────────────────────────────────────────────────

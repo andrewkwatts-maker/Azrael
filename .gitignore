@@ -18,3 +18,8 @@ src/azrael/_data/*.db
 serviceAccountKey.json
 credentials*.json
 *-credentials.json
+
+# Baked data ships as a GitHub Release asset, not in git
+src/azrael/_data/*.db.gz
+src/azrael/_data/*.db
+

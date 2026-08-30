@@ -41,6 +41,7 @@ except ImportError:
 from ._query import (
     Get,
     Search,
+    Refresh,
     ByMythology,
     ByType,
     AllGods,
@@ -106,10 +107,11 @@ def GetMythology(query: str) -> dict | None:
     return _typed(query, "mythology")
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 __all__ = [
     "Get",
+    "Refresh",
     "GetGod",
     "GetCreature",
     "GetHero",

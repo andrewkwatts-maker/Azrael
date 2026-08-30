@@ -336,8 +336,18 @@ def bake_from_firebase(db_path: Path, api_key: str) -> None:
     print(f"\nDone: {total} entities -> {db_path} ({size:.1f} MB)")
     print("Building topic graph...")
     _build_topic_graph(db, all_rows)
+    _stamp_generated_at(db)
     db.close()
     compress_db(db_path)
+
+
+def _stamp_generated_at(db: sqlite3.Connection) -> None:
+    """Record the bake epoch so eyecore's delta sync knows its baseline."""
+    from datetime import datetime, timezone
+
+    from eyecore import set_meta
+
+    set_meta(db, "generated_at", datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
 
 
 def bake_from_local(source_dir: Path, db_path: Path) -> None:
@@ -378,6 +388,7 @@ def bake_from_local(source_dir: Path, db_path: Path) -> None:
     print(f"\nDone: {total} entities -> {db_path} ({size:.1f} MB)")
     print("Building topic graph...")
     _build_topic_graph(db, all_rows)
+    _stamp_generated_at(db)
     db.close()
     compress_db(db_path)
 

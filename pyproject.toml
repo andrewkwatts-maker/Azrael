@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "azrael"
-version = "1.0.0"
+version = "1.1.0"
 description = "Mythology encyclopedia — gods, creatures, heroes, places, items, and more"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "eyecore>=1.0.0",
+    "eyecore>=1.1.0",
 ]
 
 [project.optional-dependencies]
@@ -49,6 +49,8 @@ Issues = "https://github.com/andrewkwatts-maker/Azrael/issues"
 python-source = "src"
 module-name = "azrael._core"
 features = ["pyo3/extension-module"]
+# The baked DB is a GitHub Release asset (lazy-downloaded); never wheel it.
+exclude = ["src/azrael/_data/*.db.gz", "src/azrael/_data/*.db"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
