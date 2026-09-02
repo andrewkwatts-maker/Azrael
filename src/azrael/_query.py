@@ -15,6 +15,11 @@ _DATA_URL = (
     "data-v1.1.0/azrael.db.gz"
 )
 
+# SHA-256 of the release asset above. Verified against the download before it
+# is cached, so a truncated or substituted 58 MB asset fails loudly instead of
+# being kept forever behind a gzip-magic-number check.
+_DATA_SHA256 = "60b42ced6c5e4c89e3a2ee5382b76f7c67e750fc15a7b892e291729e388a5d97"
+
 # Firestore collections this package mirrors (must match scripts/bake.py).
 MYTHOLOGY_COLLECTIONS = [
     "deities", "creatures", "heroes", "places", "items", "concepts",
@@ -31,6 +36,29 @@ _COLLECTION_TYPES = {
     "path": "path",
 }
 
+# Misspelt entity types seen upstream, folded onto their canonical form.
+# Must stay in step with scripts/bake.py's TYPE_FIXES: the bake applies these
+# when writing the snapshot, and Refresh() applies them to each delta so a
+# fixed typo cannot creep back in one document at a time.
+_TYPE_FIXES = {"deitie": "deity", "heroe": "hero"}
+
+# The shipped data-v1.1.0 snapshot predates the "heroe" fix and still stores
+# 142 rows under it, alongside 1,044 correct "hero" rows. A release asset
+# cannot be edited in place, so until a re-bake is published the query layer
+# reaches both spellings from the canonical type; without this, ByType("hero"),
+# AllHeroes(), Count("hero") and GetHero() silently miss all 142.
+_TYPE_ALIASES: dict[str, tuple[str, ...]] = {}
+for _wrong, _right in _TYPE_FIXES.items():
+    _TYPE_ALIASES[_right] = (*_TYPE_ALIASES.get(_right, (_right,)), _wrong)
+
+
+def _expand_types(*types: str) -> tuple[str, ...]:
+    """Every stored spelling of each requested type, de-duplicated."""
+    out: list[str] = []
+    for t in types:
+        out.extend(_TYPE_ALIASES.get(t, (t,)))
+    return tuple(dict.fromkeys(out))
+
 
 class _AzraelDB(EntityDB):
     def __init__(self) -> None:
@@ -40,6 +68,8 @@ class _AzraelDB(EntityDB):
             _BASE_PATH,
             MYTHOLOGY_CORPUSES,
             remote_url=_DATA_URL,
+            remote_sha256=_DATA_SHA256,
+            type_aliases=_TYPE_ALIASES,
         )
 
 
@@ -50,7 +80,8 @@ def Refresh(api_key: str = "") -> int:
     """Pull entities changed in Firestore since the bake (or last Refresh)
     and merge them into the local database. Returns entities applied."""
     return _db.sync_deltas(
-        "eyesofazrael", MYTHOLOGY_COLLECTIONS, _COLLECTION_TYPES, api_key
+        "eyesofazrael", MYTHOLOGY_COLLECTIONS, _COLLECTION_TYPES, api_key,
+        type_fixes=_TYPE_FIXES,
     )
 
 
@@ -62,7 +93,7 @@ def Get(name: str) -> dict | None:
 
 
 def _typed(query: str, *types: str) -> dict | None:
-    return _db._typed(query, *types)
+    return _db._typed(query, *_expand_types(*types))
 
 
 def Search(query: str, limit: int = 20, mythology: str | None = None) -> list[dict]:

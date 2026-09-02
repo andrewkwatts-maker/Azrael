@@ -100,6 +100,17 @@ OLYMPUS = {
 
 ALL_ENTITIES = [ZEUS, ODIN, HYDRA, ACHILLES, OLYMPUS]
 
+# The shipped data-v1.1.0 snapshot types 142 heroes "heroe" alongside 1,044
+# correct "hero" rows. Kept out of ALL_ENTITIES so the existing count
+# assertions still describe a clean database.
+SEIMEI = {
+    "id": "seimei",
+    "name": "Abe no Seimei",
+    "type": "heroe",
+    "mythology": "japanese",
+    "domains": "onmyodo divination",
+}
+
 
 # ---------------------------------------------------------------------------
 # DB builder
@@ -150,8 +161,13 @@ def db():
 
 
 @pytest.fixture
-def patch_base(db):
-    """Patch azrael._query._db._base so all queries run against the in-memory test DB."""
+def typo_db():
+    """ALL_ENTITIES plus a row carrying the snapshot's misspelt hero type."""
+    return make_test_db(ALL_ENTITIES + [SEIMEI])
+
+
+def _install_base(db):
+    """Point azrael._query._db at *db*; restore on teardown."""
     import azrael._query as q_mod
     mock_base = MagicMock()
     mock_base.conn = db
@@ -167,3 +183,15 @@ def patch_base(db):
     q_mod._db._base = original_base
     q_mod._db._graph = None
     q_mod._db._corpus = None
+
+
+@pytest.fixture
+def patch_base(db):
+    """Patch azrael._query._db._base so all queries run against the in-memory test DB."""
+    yield from _install_base(db)
+
+
+@pytest.fixture
+def patch_typo_base(typo_db):
+    """As patch_base, against the DB that reproduces the hero/heroe split."""
+    yield from _install_base(typo_db)

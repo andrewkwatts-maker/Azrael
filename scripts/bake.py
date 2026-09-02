@@ -49,7 +49,10 @@ COLLECTIONS: dict[str, str] = {
     "path": "path",
 }
 
-TYPE_FIXES: dict[str, str] = {"deitie": "deity"}
+# Misspelt types seen in the upstream documents, folded onto the canonical
+# form at bake time. Keep in step with src/azrael/_query.py's _TYPE_FIXES,
+# which applies the same map to Firestore deltas.
+TYPE_FIXES: dict[str, str] = {"deitie": "deity", "heroe": "hero"}
 
 CREATE_SQL = """
 CREATE TABLE IF NOT EXISTS entities (

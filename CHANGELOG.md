@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- **142 heroes were unreachable.** The bake normalised `deitie` → `deity` but
+  not `heroe` → `hero`, so the snapshot holds 142 rows typed `heroe` beside
+  1,044 typed `hero`. `ByType("hero")`, `AllHeroes()`, `Count("hero")`,
+  `GetAll("hero")`, `GetRandom("hero")` and `GetHero()` all filtered on the
+  canonical spelling and silently returned a short answer. `heroe` is now
+  fixed at bake time and, since the published asset cannot be edited, treated
+  as an alias of `hero` by the query layer — the 142 are findable against the
+  snapshot that is already installed. **The stored data is still wrong: a
+  re-bake and a new release asset are needed to clean it.**
+- `Refresh()` now passes the same fix map to the delta path, so a Firestore
+  document still typed `heroe` is normalised on arrival instead of
+  reintroducing the typo one sync at a time.
+
+### Added
+- The expected SHA-256 of the release asset is declared next to its URL and
+  verified during download. Previously the only integrity check on a 58 MB
+  fetch was the gzip magic number, which a truncated download passes.
+
+### Changed
+- Requires `eyecore>=1.2.0` for `type_aliases` / `type_fixes`.
+
 ## [1.1.0] — 2026-08-30
 
 ### Added
