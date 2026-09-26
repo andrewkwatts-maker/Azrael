@@ -3,6 +3,12 @@
 ## [Unreleased]
 
 ### Fixed
+- **CI tested the published package, not this repository.** The install step
+  was `pip install --find-links dist azrael`, which only *adds* `dist/` to the
+  candidate set; pip stayed free to prefer the identically versioned wheel on
+  PyPI, and did. Every change in this repository since 1.1.0 went unverified —
+  the suite was exercising released code. The built wheel is now installed by
+  path.
 - **142 heroes were unreachable.** The bake normalised `deitie` → `deity` but
   not `heroe` → `hero`, so the snapshot holds 142 rows typed `heroe` beside
   1,044 typed `hero`. `ByType("hero")`, `AllHeroes()`, `Count("hero")`,
@@ -22,6 +28,9 @@
   fetch was the gzip magic number, which a truncated download passes.
 
 ### Changed
+- Version bumped to 1.2.0. The working tree had diverged from the published
+  1.1.0 while keeping its version number, so `pip install azrael==1.1.0` and a
+  build from this checkout produced different code under one version.
 - Requires `eyecore>=1.2.0` for `type_aliases` / `type_fixes`.
 
 ## [1.1.0] — 2026-08-30
