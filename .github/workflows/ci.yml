@@ -23,7 +23,17 @@ jobs:
         run: |
           pip install maturin
           maturin build --out dist
-          pip install --find-links dist azrael
+      # eyecore 1.2.0 supplies the type_aliases/type_fixes arguments _query.py
+      # passes to EntityDB. Only 1.0.0 and 1.1.0 are on PyPI, so the dependency
+      # is installed from source until 1.2.0 is published.
+      - name: Install eyecore (1.2.0 unreleased)
+        run: pip install "eyecore @ git+https://github.com/andrewkwatts-maker/EyeCore@main"
+      # Install the wheel by path. `--find-links dist azrael` only *adds* dist to
+      # the candidate set, so pip was free to prefer the identically versioned
+      # 1.1.0 wheel on PyPI -- and did, so the tests ran against the published
+      # package instead of this checkout.
+      - name: Install built wheel
+        run: pip install dist/*.whl
       - name: Run tests
         run: pip install pytest && pytest tests/ -q
 
