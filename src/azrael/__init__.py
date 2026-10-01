@@ -33,7 +33,17 @@ except ImportError:
             score += 150.0
         if q in search_text.lower():
             score += 120.0
+        # The Rust awards 40.0 here and this branch was missing, so the two
+        # implementations ranked differently and which one you got depended on
+        # whether a wheel had been built. See `src/lib.rs`.
+        if score == 0.0 and _fuzzy_contains(n, q):
+            score += 40.0
         return score
+
+    def _fuzzy_contains(text: str, pattern: str) -> bool:
+        """True when every character of `pattern` appears in `text`, in order."""
+        it = iter(text)
+        return all(any(c == t for t in it) for c in pattern)
 
     def name_starts_with(name: str, prefix: str) -> bool:
         return name.lower().startswith(prefix.lower())

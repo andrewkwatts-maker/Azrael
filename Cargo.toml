@@ -5,7 +5,18 @@ edition = "2021"
 
 [lib]
 name = "_core"
-crate-type = ["cdylib"]
+# `rlib` too, so the scoring logic is testable without a Python interpreter.
+# It was `cdylib` only, which is why the drift from the Python fallback went
+# unnoticed: nothing could run these functions outside a built wheel.
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# `extension-module` was hard-coded onto the pyo3 dependency with no
+# `[features]` table, so a test binary could never link. Empty by default: the
+# scoring helpers are ordinary Rust.
+default = []
+python = ["dep:pyo3"]
+extension-module = ["python", "pyo3/extension-module"]
 
 [dependencies]
-pyo3 = { version = "0.28", features = ["extension-module"] }
+pyo3 = { version = "0.28", optional = true }

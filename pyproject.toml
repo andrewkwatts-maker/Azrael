@@ -48,7 +48,7 @@ Issues = "https://github.com/andrewkwatts-maker/Azrael/issues"
 [tool.maturin]
 python-source = "src"
 module-name = "azrael._core"
-features = ["pyo3/extension-module"]
+features = ["extension-module"]
 # The baked DB is a GitHub Release asset (lazy-downloaded); never wheel it.
 exclude = ["src/azrael/_data/*.db.gz", "src/azrael/_data/*.db"]
 
